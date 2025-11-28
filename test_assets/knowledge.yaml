@@ -1,0 +1,66 @@
+# Knowledge Base for Product Demo Interview
+# This file contains term definitions that the bot can reference during the conversation
+
+terms:
+  - term: "KPI"
+    definition: "Key Performance Indicator - a measurable value that demonstrates how effectively a company is achieving key business objectives."
+    aliases:
+      - "key performance indicator"
+      - "performance metric"
+    example: "Revenue growth rate is a common KPI for sales teams."
+
+  - term: "ROI"
+    definition: "Return on Investment - a performance measure used to evaluate the efficiency of an investment."
+    aliases:
+      - "return on investment"
+      - "investment return"
+    example: "The marketing campaign showed a 150% ROI over 6 months."
+
+  - term: "Q1"
+    definition: "First Quarter - the first three months of a fiscal year (January through March)."
+    aliases:
+      - "first quarter"
+      - "quarter one"
+
+  - term: "Q2"
+    definition: "Second Quarter - months four through six of a fiscal year (April through June)."
+    aliases:
+      - "second quarter"
+      - "quarter two"
+
+  - term: "Q3"
+    definition: "Third Quarter - months seven through nine of a fiscal year (July through September)."
+    aliases:
+      - "third quarter"
+      - "quarter three"
+
+  - term: "Q4"
+    definition: "Fourth Quarter - the final three months of a fiscal year (October through December)."
+    aliases:
+      - "fourth quarter"
+      - "quarter four"
+
+  - term: "YoY"
+    definition: "Year over Year - a method of comparing data from one year to the same period in the previous year."
+    aliases:
+      - "year over year"
+      - "year-over-year"
+
+  - term: "Dashboard"
+    definition: "A visual display of key metrics and data points that provides an at-a-glance view of business performance."
+    aliases:
+      - "analytics dashboard"
+      - "metrics dashboard"
+
+  - term: "Conversion Rate"
+    definition: "The percentage of users who take a desired action out of the total number of visitors."
+    aliases:
+      - "conversion"
+      - "CR"
+    example: "A 5% conversion rate means 5 out of every 100 visitors made a purchase."
+
+  - term: "Pipeline"
+    definition: "A visual representation of where prospects are in the sales process."
+    aliases:
+      - "sales pipeline"
+      - "deal pipeline"
