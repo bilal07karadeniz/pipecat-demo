@@ -11,8 +11,10 @@ class Settings(BaseSettings):
     cartesia_api_key: str = ""
     cartesia_voice_id: str = "a0e99841-438c-4a64-b679-ae501e7d6091"
 
-    # Groq - LLM
+    # LLM (OpenAI or Groq)
+    openai_api_key: str = ""
     groq_api_key: str = ""
+    llm_provider: str = "openai"  # "openai" or "groq"
 
     # Server settings
     storage_path: str = "./storage"

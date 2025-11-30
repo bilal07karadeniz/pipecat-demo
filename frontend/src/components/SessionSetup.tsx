@@ -96,7 +96,7 @@ You are interviewing a hiring manager about their staffing needs. Ask about:
           <input
             type="file"
             multiple
-            accept=".png,.jpg,.jpeg,.webp,.gif,.ppt,.pptx,.mp4,.webm"
+            accept=".png,.jpg,.jpeg,.webp,.gif,.ppt,.pptx,.pdf,.mp4,.webm"
             onChange={handleAssetChange}
             className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white
                        file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0

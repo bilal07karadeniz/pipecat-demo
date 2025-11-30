@@ -57,6 +57,9 @@ class AssetProcessor:
             if ext in [".ppt", ".pptx"]:
                 ppt_assets = await self._process_ppt(file, session_id, asset_dir)
                 assets.extend(ppt_assets)
+            elif ext == ".pdf":
+                pdf_assets = await self._process_pdf(file, session_id, asset_dir)
+                assets.extend(pdf_assets)
             elif ext in [".png", ".jpg", ".jpeg", ".webp", ".gif"]:
                 asset = await self._process_image(file, session_id, asset_dir)
                 assets.append(asset)
@@ -106,6 +109,75 @@ class AssetProcessor:
             )
         finally:
             # Clean up original PPT if converted
+            if temp_path.exists() and len(assets) > 1:
+                temp_path.unlink()
+
+        return assets
+
+    async def _process_pdf(
+        self, file: UploadFile, session_id: str, asset_dir: Path
+    ) -> List[Asset]:
+        """Convert PDF pages to images."""
+        import fitz  # PyMuPDF
+        from PIL import Image
+        import io
+
+        assets = []
+
+        # Save PDF temporarily
+        temp_path = asset_dir / file.filename
+        content = await file.read()
+        with open(temp_path, "wb") as f:
+            f.write(content)
+
+        try:
+            pdf_doc = fitz.open(str(temp_path))
+
+            for i, page in enumerate(pdf_doc):
+                # Render page at 2x resolution for quality
+                mat = fitz.Matrix(2, 2)
+                pix = page.get_pixmap(matrix=mat)
+
+                # Convert to PIL Image
+                img_data = pix.tobytes("png")
+                img = Image.open(io.BytesIO(img_data))
+
+                # Save as WebP
+                output_filename = f"page-{i + 1:03d}.webp"
+                output_path = asset_dir / output_filename
+                try:
+                    img.save(str(output_path), "WEBP", quality=85)
+                except Exception:
+                    # Fallback to PNG if WebP fails
+                    output_filename = f"page-{i + 1:03d}.png"
+                    output_path = asset_dir / output_filename
+                    img.save(str(output_path), "PNG")
+
+                asset_id = f"page-{i + 1:03d}"
+                assets.append(
+                    Asset(
+                        asset_id=asset_id,
+                        title=f"Page {i + 1}",
+                        type=AssetType.IMAGE,
+                        url=f"/storage/{session_id}/{output_filename}",
+                    )
+                )
+
+            pdf_doc.close()
+        except Exception as e:
+            print(f"PDF conversion failed: {e}")
+            # Fallback: treat as single asset
+            asset_id = f"pdf-{uuid.uuid4().hex[:8]}"
+            assets.append(
+                Asset(
+                    asset_id=asset_id,
+                    title=Path(file.filename).stem,
+                    type=AssetType.IMAGE,
+                    url=f"/storage/{session_id}/{file.filename}",
+                )
+            )
+        finally:
+            # Clean up original PDF if converted
             if temp_path.exists() and len(assets) > 1:
                 temp_path.unlink()
 

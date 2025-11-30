@@ -1,0 +1,57 @@
+# Docker Compose for Pipecat Voice Interview Bot
+# Usage:
+#   Development: docker-compose up
+#   Production:  docker-compose -f docker-compose.prod.yml up
+
+services:
+  # Backend API service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      # API Keys - set these in .env file or environment
+      - DEEPGRAM_API_KEY=${DEEPGRAM_API_KEY}
+      - CARTESIA_API_KEY=${CARTESIA_API_KEY}
+      - CARTESIA_VOICE_ID=${CARTESIA_VOICE_ID:-ee7ea9f8-c0c1-498c-9279-764d6b56d189}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      # Server settings
+      - HOST=0.0.0.0
+      - PORT=8000
+      - STORAGE_PATH=/app/storage
+    volumes:
+      # Persist storage data
+      - backend_storage:/app/storage
+      # Mount source for development (optional, remove in production)
+      - ./backend:/app:cached
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend service (development mode)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    volumes:
+      # Mount source for hot reload
+      - ./frontend:/app:cached
+      # Prevent node_modules from being overwritten
+      - /app/node_modules
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  backend_storage:
+    driver: local

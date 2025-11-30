@@ -67,16 +67,17 @@ async def create_session(
 
 @router.get("/{session_id}")
 async def get_session(session_id: str):
-    """Get session details."""
+    """Get session details including assets for frontend initialization."""
     session = session_manager.get_session(session_id)
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
 
     return {
         "session_id": session.session_id,
+        "webrtc_url": f"/api/webrtc/offer/{session_id}",
+        "asset_manifest": [a.model_dump() for a in session.assets],
         "created_at": session.created_at.isoformat(),
         "ended_at": session.ended_at.isoformat() if session.ended_at else None,
-        "asset_count": len(session.assets),
         "transcript_count": len(session.transcript),
     }
 

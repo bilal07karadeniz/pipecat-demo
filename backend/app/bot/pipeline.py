@@ -3,12 +3,13 @@ from typing import Callable, Awaitable, Optional
 
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.task import PipelineParams, PipelineTask
-from pipecat.frames.frames import EndFrame, LLMMessagesFrame, TranscriptionFrame
+from pipecat.frames.frames import EndFrame, LLMMessagesFrame, TranscriptionFrame, InterimTranscriptionFrame
 from pipecat.processors.aggregators.openai_llm_context import OpenAILLMContext
 from pipecat.processors.transcript_processor import TranscriptProcessor
 from pipecat.processors.frame_processor import FrameProcessor, FrameDirection
 from pipecat.services.cartesia.tts import CartesiaTTSService
 from pipecat.services.deepgram.stt import DeepgramSTTService
+from pipecat.services.openai.llm import OpenAILLMService
 from pipecat.services.groq.llm import GroqLLMService
 
 from app.config import get_settings
@@ -34,22 +35,31 @@ class TranscriptForwarder(FrameProcessor):
     async def process_frame(self, frame, direction: FrameDirection):
         await super().process_frame(frame, direction)
 
-        if isinstance(frame, TranscriptionFrame):
+        # Handle interim transcription frames (partial results)
+        if isinstance(frame, InterimTranscriptionFrame):
             text = frame.text.strip() if frame.text else ""
             if text:
-                # Send to frontend (both interim and final)
                 await self.send_message({
                     "type": "transcript",
                     "speaker": "user",
                     "text": text,
-                    "is_final": frame.is_final,
+                    "is_final": False,
                 })
 
+        # Handle final transcription frames
+        elif isinstance(frame, TranscriptionFrame):
+            text = frame.text.strip() if frame.text else ""
+            if text:
+                await self.send_message({
+                    "type": "transcript",
+                    "speaker": "user",
+                    "text": text,
+                    "is_final": True,
+                })
                 # Only persist final transcripts to session storage
-                if frame.is_final:
-                    session_manager.add_transcript_entry(
-                        self.session_id, "user", text, True
-                    )
+                session_manager.add_transcript_entry(
+                    self.session_id, "user", text, True
+                )
 
         await self.push_frame(frame, direction)
 
@@ -150,11 +160,17 @@ class InterviewBot:
             voice_id=self._settings.cartesia_voice_id,
         )
 
-        # Initialize LLM service (Groq)
-        llm = GroqLLMService(
-            api_key=self._settings.groq_api_key,
-            model="llama-3.3-70b-versatile",
-        )
+        # Initialize LLM service (OpenAI or Groq based on config)
+        if self._settings.llm_provider == "openai":
+            llm = OpenAILLMService(
+                api_key=self._settings.openai_api_key,
+                model="gpt-4o-mini",
+            )
+        else:
+            llm = GroqLLMService(
+                api_key=self._settings.groq_api_key,
+                model="llama-3.3-70b-versatile",
+            )
 
         # Build system prompt
         kb_terms = self.kb.get_terms_list() if self.kb else None
