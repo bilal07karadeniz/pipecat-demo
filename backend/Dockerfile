@@ -33,7 +33,7 @@ EXPOSE 8000
 # Environment variables (can be overridden)
 ENV HOST=0.0.0.0
 ENV PORT=8000
-ENV STORAGE_PATH=/app/storage
+ENV STORAGE_PATH=/data
 
 # Run the application
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
