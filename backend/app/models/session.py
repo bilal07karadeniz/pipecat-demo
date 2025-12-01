@@ -46,3 +46,15 @@ class SessionResponse(BaseModel):
     session_id: str
     webrtc_url: str
     asset_manifest: List[Asset]
+    frontend_link: Optional[str] = None
+
+
+class SessionListItem(BaseModel):
+    session_id: str
+    prompt: str
+    created_at: datetime
+    ended_at: Optional[datetime] = None
+    is_active: bool
+    asset_count: int
+    transcript_count: int
+    frontend_link: str

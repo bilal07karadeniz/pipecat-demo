@@ -1,9 +1,7 @@
 import type { SessionResponse } from '../types/session';
 
-// Use VITE_API_URL if set, otherwise empty string for same-origin requests
-export const API_BASE = import.meta.env.VITE_API_URL !== undefined
-  ? import.meta.env.VITE_API_URL
-  : 'http://localhost:8000';
+// Use VITE_API_URL if set and not empty, otherwise fallback to localhost for dev
+export const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export async function createSession(
   prompt: string,

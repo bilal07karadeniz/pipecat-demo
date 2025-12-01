@@ -13,13 +13,16 @@ class Settings(BaseSettings):
 
     # LLM (OpenAI or Groq)
     openai_api_key: str = ""
+    openai_model: str = "gpt-4o-mini"
     groq_api_key: str = ""
+    groq_model: str = "llama-3.3-70b-versatile"
     llm_provider: str = "openai"  # "openai" or "groq"
 
     # Server settings
     storage_path: str = "./storage"
     host: str = "0.0.0.0"
     port: int = 8000
+    frontend_url: str = "http://localhost:3000"  # Frontend URL for session links
 
     # Audio settings
     audio_in_sample_rate: int = 16000

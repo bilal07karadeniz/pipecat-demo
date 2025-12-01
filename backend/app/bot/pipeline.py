@@ -164,12 +164,12 @@ class InterviewBot:
         if self._settings.llm_provider == "openai":
             llm = OpenAILLMService(
                 api_key=self._settings.openai_api_key,
-                model="gpt-4o-mini",
+                model=self._settings.openai_model,
             )
         else:
             llm = GroqLLMService(
                 api_key=self._settings.groq_api_key,
-                model="llama-3.3-70b-versatile",
+                model=self._settings.groq_model,
             )
 
         # Build system prompt

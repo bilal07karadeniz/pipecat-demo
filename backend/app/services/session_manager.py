@@ -43,6 +43,31 @@ class SessionManager:
             self._load_session(session_id)
         return self._sessions.get(session_id)
 
+    def get_session_fresh(self, session_id: str) -> Optional[SessionState]:
+        """Get session by ID, always loading fresh from disk.
+
+        Use this for WebRTC connections to ensure we always have the
+        correct, most recent session data and avoid cache staleness.
+        """
+        path = self._get_session_path(session_id)
+        if not path.exists():
+            return None
+
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            if data.get("created_at"):
+                data["created_at"] = datetime.fromisoformat(
+                    data["created_at"].replace("Z", "+00:00")
+                )
+            if data.get("ended_at"):
+                data["ended_at"] = datetime.fromisoformat(
+                    data["ended_at"].replace("Z", "+00:00")
+                )
+            session = SessionState(**data)
+            # Update cache with fresh data
+            self._sessions[session_id] = session
+            return session
+
     def add_transcript_entry(
         self,
         session_id: str,
@@ -147,6 +172,27 @@ class SessionManager:
                         data["ended_at"].replace("Z", "+00:00")
                     )
                 self._sessions[session_id] = SessionState(**data)
+
+    def get_all_sessions(self, active_only: bool = False) -> List[SessionState]:
+        """Get all sessions, optionally filtering for active (not ended) sessions only."""
+        settings = get_settings()
+        sessions_dir = Path(settings.storage_path) / "sessions"
+
+        if not sessions_dir.exists():
+            return []
+
+        sessions = []
+        for session_file in sessions_dir.glob("*.json"):
+            session_id = session_file.stem
+            session = self.get_session(session_id)
+            if session:
+                if active_only and session.ended_at is not None:
+                    continue
+                sessions.append(session)
+
+        # Sort by created_at descending (newest first)
+        sessions.sort(key=lambda s: s.created_at, reverse=True)
+        return sessions
 
 
 # Singleton instance
