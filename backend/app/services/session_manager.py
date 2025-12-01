@@ -148,6 +148,27 @@ class SessionManager:
                     )
                 self._sessions[session_id] = SessionState(**data)
 
+    def get_all_sessions(self, active_only: bool = False) -> List[SessionState]:
+        """Get all sessions, optionally filtering for active (not ended) sessions only."""
+        settings = get_settings()
+        sessions_dir = Path(settings.storage_path) / "sessions"
+
+        if not sessions_dir.exists():
+            return []
+
+        sessions = []
+        for session_file in sessions_dir.glob("*.json"):
+            session_id = session_file.stem
+            session = self.get_session(session_id)
+            if session:
+                if active_only and session.ended_at is not None:
+                    continue
+                sessions.append(session)
+
+        # Sort by created_at descending (newest first)
+        sessions.sort(key=lambda s: s.created_at, reverse=True)
+        return sessions
+
 
 # Singleton instance
 session_manager = SessionManager()

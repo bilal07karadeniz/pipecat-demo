@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     storage_path: str = "./storage"
     host: str = "0.0.0.0"
     port: int = 8000
+    frontend_url: str = "http://localhost:3000"  # Frontend URL for session links
 
     # Audio settings
     audio_in_sample_rate: int = 16000
