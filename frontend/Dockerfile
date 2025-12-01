@@ -5,8 +5,8 @@ FROM node:20-alpine AS development
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy package files (without lock file for cross-platform compatibility)
+COPY package.json ./
 
 # Install dependencies
 RUN npm install
@@ -25,11 +25,11 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy package files (without lock file for cross-platform compatibility)
+COPY package.json ./
 
 # Install dependencies
-RUN npm ci
+RUN npm install
 
 # Copy source code
 COPY . .
