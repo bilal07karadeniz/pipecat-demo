@@ -3,6 +3,7 @@ import './index.css';
 import { useInterviewStore } from './stores/interviewStore';
 import { SessionSetup } from './components/SessionSetup';
 import { InterviewApp } from './components/InterviewApp';
+import { API_BASE } from './services/api';
 
 function App() {
   const sessionId = useInterviewStore(state => state.sessionId);
@@ -17,7 +18,7 @@ function App() {
 
     if (urlSessionId && !sessionId) {
       // Load existing session from API
-      fetch(`/api/sessions/${urlSessionId}`)
+      fetch(`${API_BASE}/api/sessions/${urlSessionId}`)
         .then(res => {
           if (!res.ok) throw new Error('Session not found');
           return res.json();

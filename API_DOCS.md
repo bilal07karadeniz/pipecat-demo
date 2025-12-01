@@ -24,8 +24,10 @@
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
+| GET | `/api/sessions` | List all sessions |
 | POST | `/api/sessions` | Create a new session |
 | GET | `/api/sessions/{session_id}` | Get session details |
+| GET | `/api/sessions/{session_id}/link` | Get frontend link for session |
 | POST | `/api/sessions/{session_id}/end` | End a session |
 | GET | `/api/sessions/{session_id}/artifacts/json` | Get session summary |
 | GET | `/api/sessions/{session_id}/artifacts/transcript` | Get transcript (JSON) |
@@ -36,7 +38,58 @@
 
 ---
 
-## 1. Create Session
+## 1. List Sessions
+
+Returns all sessions, optionally filtered by active status.
+
+**Endpoint:** `GET /api/sessions`
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `active_only` | boolean | No | If `true`, only return sessions that haven't ended |
+
+### Sample Request
+
+```bash
+# Get all sessions
+curl "https://your-domain.com/api/sessions"
+
+# Get only active sessions
+curl "https://your-domain.com/api/sessions?active_only=true"
+```
+
+### Response
+
+```json
+[
+  {
+    "session_id": "dd7efc7e-e538-4166-a7e7-723b22d1d885",
+    "prompt": "Interview the candidate about their React experience...",
+    "created_at": "2025-12-01T17:30:00.000Z",
+    "ended_at": null,
+    "is_active": true,
+    "asset_count": 3,
+    "transcript_count": 12,
+    "frontend_link": "https://your-frontend.com/?session=dd7efc7e-e538-4166-a7e7-723b22d1d885"
+  },
+  {
+    "session_id": "aa1b2c3d-4e5f-6789-abcd-ef0123456789",
+    "prompt": "Product demo interview...",
+    "created_at": "2025-12-01T15:00:00.000Z",
+    "ended_at": "2025-12-01T15:30:00.000Z",
+    "is_active": false,
+    "asset_count": 5,
+    "transcript_count": 24,
+    "frontend_link": "https://your-frontend.com/?session=aa1b2c3d-4e5f-6789-abcd-ef0123456789"
+  }
+]
+```
+
+---
+
+## 2. Create Session
 
 Creates a new interview session with prompt, assets, and optional knowledge base.
 
@@ -127,13 +180,14 @@ console.log(session);
       "type": "video",
       "url": "/storage/dd7efc7e-e538-4166-a7e7-723b22d1d885/vid-41542e37.mp4"
     }
-  ]
+  ],
+  "frontend_link": "https://your-frontend.com/?session=dd7efc7e-e538-4166-a7e7-723b22d1d885"
 }
 ```
 
 ---
 
-## 2. Get Session Details
+## 3. Get Session Details
 
 Returns full session data including assets. Used by frontend for direct URL loading.
 
@@ -167,13 +221,41 @@ curl "https://your-domain.com/api/sessions/dd7efc7e-e538-4166-a7e7-723b22d1d885"
   ],
   "created_at": "2025-11-30T17:30:00.000Z",
   "ended_at": null,
-  "transcript_count": 12
+  "is_active": true,
+  "transcript_count": 12,
+  "frontend_link": "https://your-frontend.com/?session=dd7efc7e-e538-4166-a7e7-723b22d1d885"
 }
 ```
 
 ---
 
-## 3. End Session
+## 4. Get Session Link
+
+Returns the frontend URL for a specific session. Useful for generating shareable links.
+
+**Endpoint:** `GET /api/sessions/{session_id}/link`
+
+### Sample Request
+
+```bash
+curl "https://your-domain.com/api/sessions/dd7efc7e-e538-4166-a7e7-723b22d1d885/link"
+```
+
+### Response
+
+```json
+{
+  "session_id": "dd7efc7e-e538-4166-a7e7-723b22d1d885",
+  "frontend_link": "https://your-frontend.com/?session=dd7efc7e-e538-4166-a7e7-723b22d1d885",
+  "is_active": true
+}
+```
+
+---
+
+## 5. End Session
+
+Marks a session as ended and returns a summary.
 
 **Endpoint:** `POST /api/sessions/{session_id}/end`
 
@@ -198,7 +280,7 @@ curl -X POST "https://your-domain.com/api/sessions/dd7efc7e-e538-4166-a7e7-723b2
 
 ---
 
-## 4. Get Transcript (JSON)
+## 6. Get Transcript (JSON)
 
 Returns the full conversation transcript as JSON.
 
@@ -237,7 +319,7 @@ curl "https://your-domain.com/api/sessions/dd7efc7e-e538-4166-a7e7-723b22d1d885/
 
 ---
 
-## 5. Get Transcript (Plain Text)
+## 7. Get Transcript (Plain Text)
 
 Returns the transcript as plain text format.
 
@@ -261,7 +343,7 @@ Bot: Nice to meet you too! Let me show you our first slide.
 
 ---
 
-## 6. Get Session Summary (JSON)
+## 8. Get Session Summary (JSON)
 
 Returns metadata and summary for the session.
 
@@ -286,7 +368,7 @@ curl "https://your-domain.com/api/sessions/dd7efc7e-e538-4166-a7e7-723b22d1d885/
 
 ---
 
-## 7. WebRTC Connection
+## 9. WebRTC Connection
 
 For real-time voice communication. This is typically handled by the frontend client.
 
@@ -317,7 +399,7 @@ curl -X POST "https://your-domain.com/api/webrtc/offer/dd7efc7e-e538-4166-a7e7-7
 
 ---
 
-## 8. WebSocket (Real-time Events)
+## 10. WebSocket (Real-time Events)
 
 Connect to receive real-time transcript updates and asset display commands.
 
@@ -358,7 +440,7 @@ Connect to receive real-time transcript updates and asset display commands.
 
 ---
 
-## 9. Check Connection Status
+## 11. Check Connection Status
 
 **Endpoint:** `GET /api/webrtc/status/{session_id}`
 
@@ -379,7 +461,7 @@ curl "https://your-domain.com/api/webrtc/status/dd7efc7e-e538-4166-a7e7-723b22d1
 
 ---
 
-## 10. Health Check
+## 12. Health Check
 
 **Endpoint:** `GET /health`
 
@@ -455,11 +537,10 @@ response = requests.post(
 )
 session = response.json()
 session_id = session["session_id"]
-print(f"Created session: {session_id}")
+frontend_link = session["frontend_link"]  # Already includes the full URL!
 
-# Generate the direct interview URL
-interview_url = f"https://your-domain.com?session={session_id}"
-print(f"Interview URL: {interview_url}")
+print(f"Created session: {session_id}")
+print(f"Interview URL: {frontend_link}")
 ```
 
 ### 2. Redirect User to Interview
