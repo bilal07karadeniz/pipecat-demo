@@ -43,6 +43,31 @@ class SessionManager:
             self._load_session(session_id)
         return self._sessions.get(session_id)
 
+    def get_session_fresh(self, session_id: str) -> Optional[SessionState]:
+        """Get session by ID, always loading fresh from disk.
+
+        Use this for WebRTC connections to ensure we always have the
+        correct, most recent session data and avoid cache staleness.
+        """
+        path = self._get_session_path(session_id)
+        if not path.exists():
+            return None
+
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            if data.get("created_at"):
+                data["created_at"] = datetime.fromisoformat(
+                    data["created_at"].replace("Z", "+00:00")
+                )
+            if data.get("ended_at"):
+                data["ended_at"] = datetime.fromisoformat(
+                    data["ended_at"].replace("Z", "+00:00")
+                )
+            session = SessionState(**data)
+            # Update cache with fresh data
+            self._sessions[session_id] = session
+            return session
+
     def add_transcript_entry(
         self,
         session_id: str,

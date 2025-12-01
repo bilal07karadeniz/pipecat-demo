@@ -24,7 +24,8 @@ active_connections: Dict[str, Any] = {}
 async def webrtc_offer(session_id: str, request: Request):
     """Handle WebRTC offer for establishing connection."""
 
-    session = session_manager.get_session(session_id)
+    # Use get_session_fresh to always load from disk and avoid cache staleness
+    session = session_manager.get_session_fresh(session_id)
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
 
