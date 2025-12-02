@@ -13,7 +13,7 @@ class Settings(BaseSettings):
 
     # LLM (OpenAI or Groq)
     openai_api_key: str = ""
-    openai_model: str = "gpt-4o-mini"
+    openai_model: str = "gpt-5-mini"
     groq_api_key: str = ""
     groq_model: str = "llama-3.3-70b-versatile"
     llm_provider: str = "openai"  # "openai" or "groq"

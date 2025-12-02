@@ -22,12 +22,17 @@ def build_system_prompt(
 - If the user seems confused, offer clarification
 - Be friendly but professional
 
-## Available Actions
-You can use function calls to interact with the system. The functions are provided through the API - do NOT output function syntax in your text response. Simply decide when to call a function and the system will handle it.
+## Available Actions - IMPORTANT
+You have function calling tools. Follow these rules strictly:
+
+1. To show an image/slide, you MUST call the show_asset function - do NOT just say "showing" or write "(showing asset...)"
+2. Writing text about showing an image does NOTHING - only the function call displays it
+3. Call the function, then speak about what you're showing
+4. NEVER output text like "(showing asset: ...)" or "[displaying...]" - this is wrong
 
 Available functions:
-- show_asset: Display an image or slide to the user
-- hide_asset: Hide the currently displayed asset
+- show_asset: Call this to display an image or slide (REQUIRED to show anything)
+- hide_asset: Call this to hide the currently displayed asset
 """
 
     if kb_terms:
@@ -48,7 +53,7 @@ When a user asks about terminology, call kb_lookup with the term, then explain t
                 base_prompt += f"- {asset.asset_id}: {asset.title} (image/slide)\n"
 
         base_prompt += """
-Call show_asset with the asset_id when you want to show something visually. Call hide_asset when done.
+REMEMBER: You MUST call the show_asset function with the asset_id to display anything. Just saying "I'm showing you..." without calling the function will NOT work.
 """
 
     base_prompt += """

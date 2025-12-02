@@ -8,11 +8,13 @@ WORKDIR /app
 # - poppler-utils: Required for pdf2image (PPTX to images)
 # - libmagic1: File type detection
 # - ffmpeg: Audio/video processing for pipecat
+# - curl: For health checks
 RUN apt-get update && apt-get install -y --no-install-recommends \
     poppler-utils \
     libmagic1 \
     ffmpeg \
     libreoffice \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
