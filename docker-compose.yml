@@ -18,7 +18,7 @@ services:
       - CARTESIA_VOICE_ID=${CARTESIA_VOICE_ID:-ee7ea9f8-c0c1-498c-9279-764d6b56d189}
       - LLM_PROVIDER=${LLM_PROVIDER:-openai}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-5-mini}
       - GROQ_API_KEY=${GROQ_API_KEY}
       - GROQ_MODEL=${GROQ_MODEL:-llama-3.3-70b-versatile}
       # Server settings
